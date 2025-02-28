@@ -15,7 +15,9 @@
 		"noEmit": true,
 		"baseUrl": "./src",
 		"paths": {
-			"$modules/*": ["modules/*"]
+			"$modules/*": ["modules/*"],
+			"$api/*": ["api/*"],
+			"$core/*": ["core/*"]
 		},
 
 		// Best practices
