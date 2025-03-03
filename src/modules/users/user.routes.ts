@@ -4,12 +4,12 @@ const userController = new UserController();
 
 export const userRoutes = {
 	"/api/users": {
-		GET: userController.getAllUsers,
-		POST: userController.createUser
+		GET: (req: Request) => userController.getAllUsers(),
+		POST: (req: Request) => userController.createUser(req)
 	},
 	"/api/users/:id": {
-		GET: userController.getUser,
-		PUT: userController.updateUser,
-		DELETE: userController.deleteUser
+		GET: (req: Request) => userController.getUser(req as Request & { params: { id: string } }),
+		PUT: (req: Request) => userController.updateUser(req as Request & { params: { id: string } }),
+		DELETE: (req: Request) => userController.deleteUser(req as Request & { params: { id: string } }),
 	},
 };

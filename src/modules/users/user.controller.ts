@@ -12,9 +12,9 @@ export class UserController {
 		});
 	};
 
-	getUser = async (req: Request) => {
-		const { searchParams } = new URL(req.url);
-		const id = Number(searchParams.get("id"));
+	getUser = async (req: Request & { params: { id: string } }) => {
+		const id = Number(req.params.id);
+
 		const user = await this.userService.findById(id);
 		return user
 			? new Response(JSON.stringify(user), {
@@ -24,8 +24,7 @@ export class UserController {
 	};
 
 	createUser = async (req: Request) => {
-		const { firstName, lastName, email, phoneNumber, password } =
-			await req.json();
+		const { firstName, lastName, email, phoneNumber, password } = await req.json();
 
 		const hashedPassword = await this.passwordService.hashPassword(password);
 		const user = await this.userService.create(
@@ -41,11 +40,10 @@ export class UserController {
 		});
 	};
 
-	updateUser = async (req: Request) => {
-		const { searchParams } = new URL(req.url);
-		const id = Number(searchParams.get("id"));
-		const updatedData = await req.json();
+	updateUser = async (req: Request & { params: { id: string } }) => {
+		const id = Number(req.params.id);
 
+		const updatedData = await req.json();
 		const updatedUser = await this.userService.update(id, updatedData);
 		return updatedUser
 			? new Response(JSON.stringify(updatedUser), {
@@ -54,9 +52,8 @@ export class UserController {
 			: new Response("User not found", { status: 404 });
 	};
 
-	deleteUser = async (req: Request) => {
-		const { searchParams } = new URL(req.url);
-		const id = Number(searchParams.get("id"));
+	deleteUser = async (req: Request & { params: { id: string } }) => {
+		const id = Number(req.params.id);
 
 		const deleted = await this.userService.delete(id);
 		return deleted

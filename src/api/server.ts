@@ -4,7 +4,6 @@ export function startServer() {
 	const server = Bun.serve({
 		routes: {
 			...userRoutes,
-			"/api/*": () => new Response("Not Found", { status: 404 }),
 		},
 	});
 
