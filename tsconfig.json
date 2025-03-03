@@ -17,7 +17,8 @@
 		"paths": {
 			"$modules/*": ["modules/*"],
 			"$api/*": ["api/*"],
-			"$core/*": ["core/*"]
+			"$core/*": ["core/*"],
+			"$constants/*": ["constants/*"]
 		},
 
 		// Best practices

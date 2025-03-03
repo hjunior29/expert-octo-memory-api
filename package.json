@@ -4,9 +4,15 @@
 	"type": "module",
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"@types/pg": "^8.11.11",
+		"drizzle-kit": "^0.30.5"
 	},
 	"peerDependencies": {
 		"typescript": "^5.0.0"
+	},
+	"dependencies": {
+		"drizzle-orm": "^0.40.0",
+		"pg": "^8.13.3"
 	}
 }

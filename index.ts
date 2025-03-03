@@ -1,13 +1,27 @@
-import { server } from "$api/server";
-import { db } from "$core/database";
+import { startServer } from "$api/server";
+import { checkDB, migrateDB } from "$core/database";
 
-db.connect()
-    .then(() => {
-        console.log("Connected to database");
-    })
-    .catch((err) => {
-        console.error("Failed to connect to database:", err);
+async function bootstrap() {
+    console.log("🚀 Starting application...");
+
+    try {
+        const dbConnected = await checkDB();
+        if (!dbConnected) {
+            console.error("❌ Database connection failed. Exiting...");
+            process.exit(1);
+        }
+
+        const migrationsApplied = await migrateDB();
+        if (!migrationsApplied) {
+            console.error("❌ Migrations failed. Exiting...");
+            process.exit(1);
+        }
+
+        startServer();
+    } catch (error) {
+        console.error("❌ Critical error during startup:", error);
         process.exit(1);
-    });
+    }
+}
 
-console.log(`Server running at http://${server.hostname}:${server.port}`);
+bootstrap();

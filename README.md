@@ -9,6 +9,7 @@ bun install
 To run:
 
 ```bash
+bunx --bun drizzle-kit generate
 bun run index.ts
 ```
 
