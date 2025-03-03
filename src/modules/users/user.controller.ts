@@ -1,7 +1,9 @@
+import { PasswordService } from "$core/security/password.service";
 import { UserService } from "./user.service";
 
 export class UserController {
 	private userService = new UserService();
+	private passwordService = new PasswordService();
 
 	getAllUsers = async () => {
 		const users = await this.userService.findAll();
@@ -22,8 +24,10 @@ export class UserController {
 	};
 
 	createUser = async (req: Request) => {
-		const { firstName, lastName, email, phoneNumber, hashedPassword } =
+		const { firstName, lastName, email, phoneNumber, password } =
 			await req.json();
+
+		const hashedPassword = await this.passwordService.hashPassword(password);
 		const user = await this.userService.create(
 			firstName,
 			lastName,
