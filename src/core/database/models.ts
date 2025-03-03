@@ -1,7 +1,7 @@
 import * as p from "drizzle-orm/pg-core"
 
 const defaultModel = {
-    id: p.serial(),
+    id: p.serial().primaryKey(),
     createdAt: p.timestamp().defaultNow().notNull(),
     updatedAt: p.timestamp().defaultNow().$onUpdate(() => new Date()).notNull(),
     deletedAt: p.timestamp(),

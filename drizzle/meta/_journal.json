@@ -8,6 +8,13 @@
       "when": 1741036675513,
       "tag": "0000_sticky_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1741037305212,
+      "tag": "0001_busy_genesis",
+      "breakpoints": true
     }
   ]
 }

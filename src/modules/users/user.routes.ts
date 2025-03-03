@@ -4,11 +4,12 @@ const userController = new UserController();
 
 export const userRoutes = {
 	"/api/users": {
-		// GET: userController.getUsers,
-		GET: userController.helloWorld,
-		// POST: userController.createUser,
+		GET: userController.getAllUsers,
+		POST: userController.createUser
 	},
 	"/api/users/:id": {
 		GET: userController.getUser,
+		PUT: userController.updateUser,
+		DELETE: userController.deleteUser
 	},
 };
