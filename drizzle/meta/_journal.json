@@ -15,6 +15,13 @@
       "when": 1741037305212,
       "tag": "0001_busy_genesis",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1741138994221,
+      "tag": "0002_lying_sebastian_shaw",
+      "breakpoints": true
     }
   ]
 }
