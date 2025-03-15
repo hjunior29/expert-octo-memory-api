@@ -1,15 +1,15 @@
 import { FlashcardController } from "./flashcard.controller";
 
-const userController = new FlashcardController();
+const flashcardController = new FlashcardController();
 
-export const userRoutes = {
+export const flashcardRoutes = {
     "/api/flashcards": {
-        GET: (req: Request) => userController.getAllFlashcards(),
-        POST: (req: Request) => userController.createFlashcard(req)
+        GET: (req: Request) => flashcardController.getAllFlashcards(),
+        POST: (req: Request) => flashcardController.createFlashcard(req)
     },
     "/api/flashcards/:id": {
-        GET: (req: Request) => userController.getFlashcard(req as Request & { params: { id: string } }),
-        PUT: (req: Request) => userController.updateFlashcard(req as Request & { params: { id: string } }),
-        DELETE: (req: Request) => userController.deleteFlashcard(req as Request & { params: { id: string } }),
+        GET: (req: Request) => flashcardController.getFlashcard(req as Request & { params: { id: string } }),
+        PUT: (req: Request) => flashcardController.updateFlashcard(req as Request & { params: { id: string } }),
+        DELETE: (req: Request) => flashcardController.deleteFlashcard(req as Request & { params: { id: string } }),
     },
 };
