@@ -1,10 +1,10 @@
 import { db } from "$core/database";
 import { users } from "$core/database/models";
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 
 export class UserService {
 	async findAll() {
-		return await db.select().from(users);
+		return await db.select().from(users).where(isNull(users.deletedAt));
 	}
 
 	async findById(id: number) {
