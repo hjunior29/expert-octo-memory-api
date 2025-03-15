@@ -1,15 +1,15 @@
 import { FolderController } from "./folder.controller";
 
-const userController = new FolderController();
+const folderController = new FolderController();
 
-export const userRoutes = {
+export const folderRoutes = {
     "/api/folders": {
-        GET: (req: Request) => userController.getAllFolders(),
-        POST: (req: Request) => userController.createFolder(req)
+        GET: (req: Request) => folderController.getAllFolders(),
+        POST: (req: Request) => folderController.createFolder(req)
     },
     "/api/folders/:id": {
-        GET: (req: Request) => userController.getFolder(req as Request & { params: { id: string } }),
-        PUT: (req: Request) => userController.updateFolder(req as Request & { params: { id: string } }),
-        DELETE: (req: Request) => userController.deleteFolder(req as Request & { params: { id: string } }),
+        GET: (req: Request) => folderController.getFolder(req as Request & { params: { id: string } }),
+        PUT: (req: Request) => folderController.updateFolder(req as Request & { params: { id: string } }),
+        DELETE: (req: Request) => folderController.deleteFolder(req as Request & { params: { id: string } }),
     },
 };

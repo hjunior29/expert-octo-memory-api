@@ -1,13 +1,13 @@
+import { UtilsService } from "$modules/utils/utils.service";
 import { FolderService } from "./folder.service";
 
 export class FolderController {
     private folderService = new FolderService();
+    private utilsService = new UtilsService();
 
     getAllFolders = async () => {
         const folders = await this.folderService.findAll();
-        return new Response(JSON.stringify(folders), {
-            headers: { "Content-Type": "application/json" },
-        });
+        return this.utilsService.createResponse(200, "Pastas encontradas", folders);
     };
 
     getFolder = async (req: Request & { params: { id: string } }) => {
@@ -15,10 +15,8 @@ export class FolderController {
 
         const folder = await this.folderService.findById(id);
         return folder
-            ? new Response(JSON.stringify(folder), {
-                headers: { "Content-Type": "application/json" },
-            })
-            : new Response("Folder not found", { status: 404 });
+            ? this.utilsService.createResponse(200, "Pasta encontrada", folder)
+            : this.utilsService.createResponse(404, "Pasta não encontrada");
     };
 
     createFolder = async (req: Request) => {
@@ -28,10 +26,7 @@ export class FolderController {
             name,
             creatorId
         );
-        return new Response(JSON.stringify(folder), {
-            headers: { "Content-Type": "application/json" },
-            status: 201,
-        });
+        return this.utilsService.createResponse(201, "Pasta criada", folder);
     };
 
     updateFolder = async (req: Request & { params: { id: string } }) => {
@@ -40,10 +35,8 @@ export class FolderController {
         const updatedData = await req.json();
         const updatedFolder = await this.folderService.update(id, updatedData);
         return updatedFolder
-            ? new Response(JSON.stringify(updatedFolder), {
-                headers: { "Content-Type": "application/json" },
-            })
-            : new Response("Folder not found", { status: 404 });
+            ? this.utilsService.createResponse(200, "Pasta atualizada", updatedFolder)
+            : this.utilsService.createResponse(404, "Pasta não encontrada");
     };
 
     deleteFolder = async (req: Request & { params: { id: string } }) => {
@@ -51,7 +44,7 @@ export class FolderController {
 
         const deleted = await this.folderService.delete(id);
         return deleted
-            ? new Response("Folder deleted successfully", { status: 200 })
-            : new Response("Folder not found", { status: 404 });
+            ? this.utilsService.createResponse(200, "Pasta deletada")
+            : this.utilsService.createResponse(404, "Pasta não encontrada");
     };
 }

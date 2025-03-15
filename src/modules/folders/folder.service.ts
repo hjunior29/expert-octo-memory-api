@@ -1,10 +1,10 @@
 import { db } from "$core/database";
 import { folders } from "$core/database/models";
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 
 export class FolderService {
     async findAll() {
-        return await db.select().from(folders);
+        return await db.select().from(folders).where(isNull(folders.deletedAt));
     }
 
     async findById(id: number) {
