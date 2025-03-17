@@ -7,7 +7,7 @@ const ai = new GoogleGenAI({
 
 export class GeminiClient {
 
-    async generateContent(prompt: string) {
+    async generateFlashcard(prompt: string) {
         try {
             const response = await ai.models.generateContent({
                 model: "gemini-2.0-flash-001",

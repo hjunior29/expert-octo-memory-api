@@ -7,6 +7,9 @@ export const flashcardRoutes = {
         GET: (req: Request) => flashcardController.getAllFlashcards(),
         POST: (req: Request) => flashcardController.createFlashcard(req)
     },
+    "/api/flashcards/batch": {
+        POST: (req: Request) => flashcardController.createFlashcardsBatch(req)
+    },
     "/api/flashcards/:id": {
         GET: (req: Request) => flashcardController.getFlashcard(req as Request & { params: { id: string } }),
         PUT: (req: Request) => flashcardController.updateFlashcard(req as Request & { params: { id: string } }),

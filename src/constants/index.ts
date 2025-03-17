@@ -9,5 +9,6 @@ export const DATABASE_URL = `postgres://${DATABASE_USER}:${DATABASE_PASS}@${DATA
 export const GEMINI_API_KEY = Bun.env.GEMINI_API_KEY;
 
 export const prompts = {
-    generateFlashcardsFromText: Bun.file(`${import.meta.dir}/prompts/generateFlashcardsFromText.txt`).text()
+    generateFlashcardsFromText: Bun.file(`${import.meta.dir}/prompts/generateFlashcardsFromText.txt`).text(),
+    generateFlashcardsFromLink: Bun.file(`${import.meta.dir}/prompts/generateFlashcardsFromLink.txt`).text()
 };

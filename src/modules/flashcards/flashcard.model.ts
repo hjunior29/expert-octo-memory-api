@@ -16,7 +16,7 @@ export class Flashcard {
 }
 
 export type FlashcardGenerate = {
-    file?: string;
+    files?: { base64: string }[];
     link?: string;
     text?: string;
     topic?: string;

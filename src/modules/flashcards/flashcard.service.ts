@@ -55,24 +55,4 @@ export class FlashcardService {
 
         return result.length ? result[0] : null;
     }
-
-
-    async generateFromFile(req: Request) {
-        const { file } = await req.json();
-        // Parse the file and generate flashcards
-    }
-
-    async generateFromLink(req: Request) {
-        const { link } = await req.json();
-        // Fetch the link and generate flashcards
-    }
-
-    async generateFromText(text: string) {
-        return this.geminiService.generateFlashcardsFromText(text);
-    }
-
-    async generateFromTopic(req: Request) {
-        const { topic } = await req.json();
-        // Fetch data from the topic and generate flashcards
-    }
 }

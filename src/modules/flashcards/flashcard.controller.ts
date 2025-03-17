@@ -1,7 +1,10 @@
+import { GeminiService } from "$modules/gemini/gemini.service";
+import type { Flashcard, FlashcardGenerate } from "./flashcard.model";
 import { FlashcardService } from "./flashcard.service";
 
 export class FlashcardController {
     private flashcardService = new FlashcardService();
+    private geminiService = new GeminiService();
 
     getAllFlashcards = async () => {
         const flashcards = await this.flashcardService.findAll();
@@ -40,6 +43,30 @@ export class FlashcardController {
         });
     };
 
+    createFlashcardsBatch = async (req: Request) => {
+        const flashcards: Flashcard[] = await req.json();
+
+        console.log(flashcards);
+
+        // if (!Array.isArray(flashcards) || flashcards.length === 0) {
+        //     return new Response(JSON.stringify({ error: "Invalid input: must be a non-empty array" }), {
+        //         status: 400,
+        //         headers: { "Content-Type": "application/json" },
+        //     });
+        // }
+
+        const createdFlashcards = await Promise.all(
+            flashcards.map(({ title, question, answer, folderId, tags, difficulty, lastReviewed, reviewCount }) =>
+                this.flashcardService.create(title, question, answer, Number(folderId), tags, difficulty, lastReviewed, reviewCount)
+            )
+        );
+
+        return new Response(JSON.stringify(createdFlashcards), {
+            headers: { "Content-Type": "application/json" },
+            status: 201,
+        });
+    };
+
     updateFlashcard = async (req: Request & { params: { id: string } }) => {
         const id = Number(req.params.id);
 
@@ -62,34 +89,64 @@ export class FlashcardController {
     };
 
     generateFlashcardsFromFile = async (req: Request) => {
-        const { file } = await req.json();
-
-        const flashcards = await this.flashcardService.generateFromFile(file);
-        return new Response(JSON.stringify(flashcards), {
-            headers: { "Content-Type": "application/json" },
-        });
-    };
-
-    generateFlashcardsFromLink = async (req: Request) => {
-        const { link } = await req.json();
-
-        const flashcards = await this.flashcardService.generateFromLink(link);
-        return new Response(JSON.stringify(flashcards), {
-            headers: { "Content-Type": "application/json" },
-        });
-    };
-
-    generateFlashcardsFromText = async (req: Request) => {
         try {
-            const { text } = await req.json();
-            if (!text) {
+            const flashcardGenerate: FlashcardGenerate = await req.json();
+            if (!flashcardGenerate.text) {
                 return new Response(JSON.stringify({ error: "Missing 'text' field" }), {
                     status: 400,
                     headers: { "Content-Type": "application/json" },
                 });
             }
 
-            const flashcards = await this.flashcardService.generateFromText(text);
+            const flashcards = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
+
+            return new Response(JSON.stringify(flashcards), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Erro ao processar JSON:", error);
+            return new Response(JSON.stringify({ error: "Invalid JSON format" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    };
+
+    generateFlashcardsFromLink = async (req: Request) => {
+        try {
+            const flashcardGenerate: FlashcardGenerate = await req.json();
+            if (!flashcardGenerate.link) {
+                return new Response(JSON.stringify({ error: "Missing 'link' field" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const flashcards = await this.geminiService.generateFlashcardsFromLink(flashcardGenerate);
+
+            return new Response(JSON.stringify(flashcards), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Erro ao processar JSON:", error);
+            return new Response(JSON.stringify({ error: "Invalid JSON format" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    };
+
+    generateFlashcardsFromText = async (req: Request) => {
+        try {
+            const flashcardGenerate: FlashcardGenerate = await req.json();
+            if (!flashcardGenerate.text) {
+                return new Response(JSON.stringify({ error: "Missing 'text' field" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const flashcards = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
 
             return new Response(JSON.stringify(flashcards), {
                 headers: { "Content-Type": "application/json" },
@@ -104,11 +161,26 @@ export class FlashcardController {
     };
 
     generateFlashcardsFromTopic = async (req: Request) => {
-        const { topic } = await req.json();
+        try {
+            const flashcardGenerate: FlashcardGenerate = await req.json();
+            if (!flashcardGenerate.text) {
+                return new Response(JSON.stringify({ error: "Missing 'text' field" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
 
-        const flashcards = await this.flashcardService.generateFromTopic(topic);
-        return new Response(JSON.stringify(flashcards), {
-            headers: { "Content-Type": "application/json" },
-        });
+            const flashcards = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
+
+            return new Response(JSON.stringify(flashcards), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Erro ao processar JSON:", error);
+            return new Response(JSON.stringify({ error: "Invalid JSON format" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
     };
 }
