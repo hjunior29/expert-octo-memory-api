@@ -1,8 +1,11 @@
 import { db } from "$core/database";
 import { flashcards } from "$core/database/models";
+import { GeminiService } from "$modules/gemini/gemini.service";
 import { eq } from "drizzle-orm";
 
 export class FlashcardService {
+    geminiService = new GeminiService();
+
     async findAll() {
         return await db.select().from(flashcards);
     }
@@ -51,5 +54,25 @@ export class FlashcardService {
             .returning();
 
         return result.length ? result[0] : null;
+    }
+
+
+    async generateFromFile(req: Request) {
+        const { file } = await req.json();
+        // Parse the file and generate flashcards
+    }
+
+    async generateFromLink(req: Request) {
+        const { link } = await req.json();
+        // Fetch the link and generate flashcards
+    }
+
+    async generateFromText(text: string) {
+        return this.geminiService.generateFlashcardsFromText(text);
+    }
+
+    async generateFromTopic(req: Request) {
+        const { topic } = await req.json();
+        // Fetch data from the topic and generate flashcards
     }
 }

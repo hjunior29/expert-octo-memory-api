@@ -60,4 +60,55 @@ export class FlashcardController {
             ? new Response("Flashcard deleted successfully", { status: 200 })
             : new Response("Flashcard not found", { status: 404 });
     };
+
+    generateFlashcardsFromFile = async (req: Request) => {
+        const { file } = await req.json();
+
+        const flashcards = await this.flashcardService.generateFromFile(file);
+        return new Response(JSON.stringify(flashcards), {
+            headers: { "Content-Type": "application/json" },
+        });
+    };
+
+    generateFlashcardsFromLink = async (req: Request) => {
+        const { link } = await req.json();
+
+        const flashcards = await this.flashcardService.generateFromLink(link);
+        return new Response(JSON.stringify(flashcards), {
+            headers: { "Content-Type": "application/json" },
+        });
+    };
+
+    generateFlashcardsFromText = async (req: Request) => {
+        try {
+            const { text } = await req.json();
+            if (!text) {
+                return new Response(JSON.stringify({ error: "Missing 'text' field" }), {
+                    status: 400,
+                    headers: { "Content-Type": "application/json" },
+                });
+            }
+
+            const flashcards = await this.flashcardService.generateFromText(text);
+
+            return new Response(JSON.stringify(flashcards), {
+                headers: { "Content-Type": "application/json" },
+            });
+        } catch (error) {
+            console.error("Erro ao processar JSON:", error);
+            return new Response(JSON.stringify({ error: "Invalid JSON format" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+    };
+
+    generateFlashcardsFromTopic = async (req: Request) => {
+        const { topic } = await req.json();
+
+        const flashcards = await this.flashcardService.generateFromTopic(topic);
+        return new Response(JSON.stringify(flashcards), {
+            headers: { "Content-Type": "application/json" },
+        });
+    };
 }

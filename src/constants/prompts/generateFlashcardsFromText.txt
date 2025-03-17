@@ -1,0 +1,69 @@
+# Prompt para Geração de Flashcards com IA
+
+## 📌 Descrição
+Você receberá um **texto de entrada**. Esse texto pode ser sobre qualquer área do conhecimento, como **matemática, medicina, história, tecnologia, ou qualquer outro campo educacional**. Sua primeira tarefa é determinar se esse texto realmente contém informações de conhecimento educacional ou se é irrelevante para o propósito da aplicação.
+
+---
+
+## 🛠 Passo 1: Validação do Conteúdo
+1. **Se o texto NÃO contiver informações relevantes**, responda com um **JSON** contendo a seguinte estrutura:
+
+{
+    "valid": false,
+    "message": "O texto fornecido não contém informações relevantes para a criação de flashcards educacionais."
+}
+
+2. **Se o texto for válido para a aplicação**, siga para o próximo passo.
+
+---
+
+## 🔹 Passo 2: Geração de Flashcards
+- Baseie-se na **técnica de flashcards** para transformar o conteúdo do texto em **10 flashcards relevantes**.
+- **Resuma e sintetize** as informações de forma objetiva e direta.
+- Utilize linguagem clara e precisa para que o aprendizado seja eficiente.
+
+Cada flashcard deve conter os seguintes **campos obrigatórios**:
+
+| Campo           | Tipo           | Descrição |
+|----------------|---------------|-----------|
+| `title`       | string        | Um título curto e direto sobre o tema principal do flashcard. |
+| `question`    | string        | Uma pergunta objetiva baseada no conteúdo do texto. |
+| `answer`      | string        | Uma resposta clara e concisa à pergunta. |
+| `tags`        | array         | Array de palavras-chave relevantes ao tema. |
+| `difficulty`  | string        | Classifique a dificuldade do flashcard como `"Fácil"`, `"Médio"`, ou `"Difícil"`, com base na complexidade do conceito abordado. |
+|----------------|---------------|-----------|
+---
+
+## 📌 Passo 3: Formato de Resposta
+A saída deve ser um JSON válido sem qualquer formatação adicional. Não inclua marcações como json,  ou qualquer outra formatação de código. A resposta deve conter apenas o JSON puro, sem prefixos ou textos explicativos.
+
+{
+    "valid": true,
+    "flashcards": [
+        {
+            "title": "Teorema de Pitágoras",
+            "question": "Qual é a fórmula do Teorema de Pitágoras?",
+            "answer": "A² + B² = C², onde C é a hipotenusa de um triângulo retângulo.",
+            "tags": ["matemática", "geometria", "triângulo"],
+            "difficulty": "Médio",
+        },
+        {
+            "title": "Hipócrates e a Medicina",
+            "question": "Quem foi Hipócrates e qual sua contribuição para a medicina?",
+            "answer": "Hipócrates foi um médico grego considerado o pai da medicina moderna, por estabelecer princípios éticos e científicos na prática médica.",
+            "tags": ["medicina", "história", "ética médica"],
+            "difficulty": "Fácil",
+        }
+    ]
+}
+
+---
+
+## 🔥 Regras Importantes:
+✅ **Retorne exatamente no formato JSON conforme especificado. Sem pontuações indicando que aquilo é um json como por exemplo o: ```json. Não quero esse tipo de marcação na resposta**  
+✅ **O array de `flashcards` deve sempre conter 10 itens.**  
+✅ **As perguntas devem ser desafiadoras, mas acessíveis ao nível de conhecimento geral do usuário.**  
+✅ **O conteúdo dos flashcards deve ser extraído e resumido de forma coerente com o texto fornecido.**  
+
+## Segue abaixo o texto:
+

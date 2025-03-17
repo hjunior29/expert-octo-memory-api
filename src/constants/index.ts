@@ -5,3 +5,9 @@ export const DATABASE_NAME = Bun.env.DATABASE_NAME;
 export const DATABASE_PORT = Bun.env.DATABASE_PORT;
 
 export const DATABASE_URL = `postgres://${DATABASE_USER}:${DATABASE_PASS}@${DATABASE_HOST}:${DATABASE_PORT}/${DATABASE_NAME}`;
+
+export const GEMINI_API_KEY = Bun.env.GEMINI_API_KEY;
+
+export const prompts = {
+    generateFlashcardsFromText: Bun.file(`${import.meta.dir}/prompts/generateFlashcardsFromText.txt`).text()
+};

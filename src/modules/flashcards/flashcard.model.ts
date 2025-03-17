@@ -14,3 +14,10 @@ export class Flashcard {
         public reviewCount: number
     ) { }
 }
+
+export type FlashcardGenerate = {
+    file?: string;
+    link?: string;
+    text?: string;
+    topic?: string;
+}
