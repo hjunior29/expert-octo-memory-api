@@ -43,23 +43,22 @@ export class FlashcardController {
         });
     };
 
-    createFlashcardsBatch = async (req: Request) => {
-        const flashcards: Flashcard[] = await req.json();
 
-        console.log(flashcards);
+    createFlashcardsBatch = async (flashcards: Flashcard[], folderId: number) => {
+        if (!Array.isArray(flashcards) || flashcards.length === 0) {
+            return new Response(JSON.stringify({ error: "Invalid input: must be a non-empty array" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
 
-        // if (!Array.isArray(flashcards) || flashcards.length === 0) {
-        //     return new Response(JSON.stringify({ error: "Invalid input: must be a non-empty array" }), {
-        //         status: 400,
-        //         headers: { "Content-Type": "application/json" },
-        //     });
-        // }
-
-        const createdFlashcards = await Promise.all(
-            flashcards.map(({ title, question, answer, folderId, tags, difficulty, lastReviewed, reviewCount }) =>
-                this.flashcardService.create(title, question, answer, Number(folderId), tags, difficulty, lastReviewed, reviewCount)
-            )
-        );
+        const createdFlashcards = [];
+        for (const f of flashcards) {
+            const created = await this.flashcardService.create(
+                f.title, f.question, f.answer, folderId, f.tags, f.difficulty, f.lastReviewed, f.reviewCount
+            );
+            createdFlashcards.push(created);
+        }
 
         return new Response(JSON.stringify(createdFlashcards), {
             headers: { "Content-Type": "application/json" },
@@ -88,28 +87,27 @@ export class FlashcardController {
             : new Response("Flashcard not found", { status: 404 });
     };
 
-    generateFlashcardsFromFile = async (req: Request) => {
-        try {
-            const flashcardGenerate: FlashcardGenerate = await req.json();
-            if (!flashcardGenerate.text) {
-                return new Response(JSON.stringify({ error: "Missing 'text' field" }), {
-                    status: 400,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
+    generateFlashcardsFromText = async (req: Request & { params: { folderId: string } }) => {
+        const folderId = Number(req.params.folderId);
+        const flashcardGenerate: FlashcardGenerate = await req.json();
 
-            const flashcards = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
-
-            return new Response(JSON.stringify(flashcards), {
-                headers: { "Content-Type": "application/json" },
-            });
-        } catch (error) {
-            console.error("Erro ao processar JSON:", error);
-            return new Response(JSON.stringify({ error: "Invalid JSON format" }), {
+        if (!flashcardGenerate.text || !folderId) {
+            return new Response(JSON.stringify({ error: "Missing fields" }), {
                 status: 400,
                 headers: { "Content-Type": "application/json" },
             });
         }
+
+        const flashcards = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
+
+        if (!flashcards.valid) {
+            return new Response(JSON.stringify({ error: "Invalid flascards" }), {
+                status: 400,
+                headers: { "Content-Type": "application/json" },
+            });
+        }
+
+        return await this.createFlashcardsBatch(flashcards.flashcards, folderId);
     };
 
     generateFlashcardsFromLink = async (req: Request) => {
@@ -136,7 +134,7 @@ export class FlashcardController {
         }
     };
 
-    generateFlashcardsFromText = async (req: Request) => {
+    generateFlashcardsFromTopic = async (req: Request) => {
         try {
             const flashcardGenerate: FlashcardGenerate = await req.json();
             if (!flashcardGenerate.text) {
@@ -160,7 +158,7 @@ export class FlashcardController {
         }
     };
 
-    generateFlashcardsFromTopic = async (req: Request) => {
+    generateFlashcardsFromFile = async (req: Request) => {
         try {
             const flashcardGenerate: FlashcardGenerate = await req.json();
             if (!flashcardGenerate.text) {
