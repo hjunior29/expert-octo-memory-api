@@ -1,184 +1,130 @@
+import { FolderService } from "$modules/folders/folder.service";
 import { GeminiService } from "$modules/gemini/gemini.service";
+import { TopicService } from "$modules/topic/topic.service";
+import { UtilsService } from "$modules/utils/utils.service";
 import type { Flashcard, FlashcardGenerate } from "./flashcard.model";
 import { FlashcardService } from "./flashcard.service";
 
 export class FlashcardController {
-    private flashcardService = new FlashcardService();
-    private geminiService = new GeminiService();
+    private readonly utilsService = new UtilsService();
+    private readonly flashcardService = new FlashcardService();
+    private readonly foldersService = new FolderService();
+    private readonly topicsService = new TopicService();
+    private readonly geminiService = new GeminiService();
 
     getAllFlashcards = async () => {
         const flashcards = await this.flashcardService.findAll();
-        return new Response(JSON.stringify(flashcards), {
-            headers: { "Content-Type": "application/json" },
-        });
+        return flashcards
+            ? this.utilsService.createResponse(200, "Flashcards encontrados", flashcards)
+            : this.utilsService.createResponse(404, "Flashcards não encontrados");
     };
 
     getFlashcard = async (req: Request & { params: { id: string } }) => {
         const id = Number(req.params.id);
 
-        const flashcard = await this.flashcardService.findById(id);
+        if (!id) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        const flashcard = await this.flashcardService.findById({ id });
         return flashcard
-            ? new Response(JSON.stringify(flashcard), {
-                headers: { "Content-Type": "application/json" },
-            })
-            : new Response("Flashcard not found", { status: 404 });
+            ? this.utilsService.createResponse(200, "Flashcard encontrado", flashcard)
+            : this.utilsService.createResponse(404, "Flashcard não encontrado");
     };
 
     createFlashcard = async (req: Request) => {
-        const { title, question, answer, folderId, tags, difficulty, lastReviewed, reviewCount } = await req.json();
+        const data = await req.json();
+        const flashcard = await this.flashcardService.create(data);
 
-        const flashcard = await this.flashcardService.create(
-            title,
-            question,
-            answer,
-            folderId,
-            tags,
-            difficulty,
-            lastReviewed,
-            reviewCount
-        );
-        return new Response(JSON.stringify(flashcard), {
-            headers: { "Content-Type": "application/json" },
-            status: 201,
-        });
+        if (!flashcard?.topicId || !flashcard?.title || !flashcard?.question || !flashcard?.answer) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        return flashcard
+            ? this.utilsService.createResponse(201, "Flashcard criado", flashcard)
+            : this.utilsService.createResponse(400, "Erro ao criar flashcard");
     };
 
 
-    createFlashcardsBatch = async (flashcards: Flashcard[], folderId: number) => {
+    createFlashcardsBatch = async (flashcards: Flashcard[], topicId: number) => {
         if (!Array.isArray(flashcards) || flashcards.length === 0) {
-            return new Response(JSON.stringify({ error: "Invalid input: must be a non-empty array" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            });
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        for (const f of flashcards) {
+            if (!f.title || !f.question || !f.answer) {
+                return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+            }
         }
 
         const createdFlashcards = [];
         for (const f of flashcards) {
-            const created = await this.flashcardService.create(
-                f.title, f.question, f.answer, folderId, f.tags, f.difficulty, f.lastReviewed, f.reviewCount
-            );
-            createdFlashcards.push(created);
+            const flashcard = await this.flashcardService.create({ ...f, topicId });
+            createdFlashcards.push(flashcard);
         }
 
-        return new Response(JSON.stringify(createdFlashcards), {
-            headers: { "Content-Type": "application/json" },
-            status: 201,
-        });
+        return this.utilsService.createResponse(201, "Flashcards criados", createdFlashcards);
     };
 
     updateFlashcard = async (req: Request & { params: { id: string } }) => {
         const id = Number(req.params.id);
 
+        if (!id) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
         const updatedData = await req.json();
-        const updatedFlashcard = await this.flashcardService.update(id, updatedData);
+        const updatedFlashcard = await this.flashcardService.update({ id, ...updatedData });
         return updatedFlashcard
-            ? new Response(JSON.stringify(updatedFlashcard), {
-                headers: { "Content-Type": "application/json" },
-            })
-            : new Response("Flashcard not found", { status: 404 });
+            ? this.utilsService.createResponse(200, "Flashcard atualizado", updatedFlashcard)
+            : this.utilsService.createResponse(404, "Flashcard não encontrado");
     };
 
     deleteFlashcard = async (req: Request & { params: { id: string } }) => {
         const id = Number(req.params.id);
 
-        const deleted = await this.flashcardService.delete(id);
+        if (!id) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        const deleted = await this.flashcardService.delete({ id });
         return deleted
-            ? new Response("Flashcard deleted successfully", { status: 200 })
-            : new Response("Flashcard not found", { status: 404 });
+            ? this.utilsService.createResponse(200, "Flashcard deletado")
+            : this.utilsService.createResponse(404, "Flashcard não encontrado");
     };
 
-    generateFlashcardsFromText = async (req: Request & { params: { folderId: string } }) => {
+    generateFlashcardsFromText = async (req: Request & { params: { folderId: number } }) => {
         const folderId = Number(req.params.folderId);
         const flashcardGenerate: FlashcardGenerate = await req.json();
 
         if (!flashcardGenerate.text || !folderId) {
-            return new Response(JSON.stringify({ error: "Missing fields" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            });
+            console.log(flashcardGenerate.text, folderId);
+            return this.utilsService.createResponse(400, "Faltando 'text' ou 'folderId' no corpo da requisição");
         }
 
-        const flashcards = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
+        const generateFlashcard = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
+        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId });
 
-        if (!flashcards.valid) {
-            return new Response(JSON.stringify({ error: "Invalid flascards" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            });
+        if (!topic?.id) {
+            return this.utilsService.createResponse(400, "Erro ao criar tópico");
         }
 
-        return await this.createFlashcardsBatch(flashcards.flashcards, folderId);
+        if (!generateFlashcard.valid) {
+            return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
+        }
+
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, folderId);
     };
 
     generateFlashcardsFromLink = async (req: Request) => {
-        try {
-            const flashcardGenerate: FlashcardGenerate = await req.json();
-            if (!flashcardGenerate.link) {
-                return new Response(JSON.stringify({ error: "Missing 'link' field" }), {
-                    status: 400,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
 
-            const flashcards = await this.geminiService.generateFlashcardsFromLink(flashcardGenerate);
-
-            return new Response(JSON.stringify(flashcards), {
-                headers: { "Content-Type": "application/json" },
-            });
-        } catch (error) {
-            console.error("Erro ao processar JSON:", error);
-            return new Response(JSON.stringify({ error: "Invalid JSON format" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
     };
 
     generateFlashcardsFromTopic = async (req: Request) => {
-        try {
-            const flashcardGenerate: FlashcardGenerate = await req.json();
-            if (!flashcardGenerate.text) {
-                return new Response(JSON.stringify({ error: "Missing 'text' field" }), {
-                    status: 400,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
 
-            const flashcards = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
-
-            return new Response(JSON.stringify(flashcards), {
-                headers: { "Content-Type": "application/json" },
-            });
-        } catch (error) {
-            console.error("Erro ao processar JSON:", error);
-            return new Response(JSON.stringify({ error: "Invalid JSON format" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
     };
 
     generateFlashcardsFromFile = async (req: Request) => {
-        try {
-            const flashcardGenerate: FlashcardGenerate = await req.json();
-            if (!flashcardGenerate.text) {
-                return new Response(JSON.stringify({ error: "Missing 'text' field" }), {
-                    status: 400,
-                    headers: { "Content-Type": "application/json" },
-                });
-            }
 
-            const flashcards = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
-
-            return new Response(JSON.stringify(flashcards), {
-                headers: { "Content-Type": "application/json" },
-            });
-        } catch (error) {
-            console.error("Erro ao processar JSON:", error);
-            return new Response(JSON.stringify({ error: "Invalid JSON format" }), {
-                status: 400,
-                headers: { "Content-Type": "application/json" },
-            });
-        }
-    };
+    }
 }

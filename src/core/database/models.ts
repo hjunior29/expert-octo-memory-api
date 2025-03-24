@@ -18,16 +18,25 @@ export const users = p.pgTable("users", {
 
 export const folders = p.pgTable("folders", {
     ...defaultModel,
-    name: p.text(),
     creatorId: p.integer().references(() => users.id),
+    name: p.text(),
+});
+
+export const topics = p.pgTable("topics", {
+    ...defaultModel,
+    folderId: p.integer().references(() => folders.id),
+    creatorId: p.integer().references(() => users.id),
+    name: p.text(),
+    description: p.text(),
 });
 
 export const flashcards = p.pgTable("flashcards", {
     ...defaultModel,
+    topicId: p.integer().references(() => topics.id),
+    creatorId: p.integer().references(() => users.id),
     title: p.text(),
     question: p.text(),
     answer: p.text(),
-    folderId: p.integer().references(() => folders.id),
     tags: p.text().array(),
     difficulty: p.text(),
     lastReviewed: p.timestamp(),

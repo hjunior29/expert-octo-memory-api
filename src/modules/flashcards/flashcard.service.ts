@@ -1,56 +1,47 @@
 import { db } from "$core/database";
 import { flashcards } from "$core/database/models";
 import { GeminiService } from "$modules/gemini/gemini.service";
-import { eq } from "drizzle-orm";
+import { eq, isNull } from "drizzle-orm";
 
 export class FlashcardService {
     geminiService = new GeminiService();
 
     async findAll() {
-        return await db.select().from(flashcards);
+        return await db.select().from(flashcards).where(isNull(flashcards.deletedAt));
     }
 
-    async findById(id: number) {
-        const result = await db.select().from(flashcards).where(eq(flashcards.id, id));
+    async findById(data: Partial<typeof flashcards.$inferInsert>) {
+        if (!data.id) return null;
+        const result = await db.select().from(flashcards).where(eq(flashcards.id, data.id));
         return result.length ? result[0] : null;
     }
 
-    async create(
-        title: string,
-        question: string,
-        answer: string,
-        folderId: number,
-        tags: string[],
-        difficulty: string,
-        lastReviewed: Date,
-        reviewCount: number
-    ) {
+    async create(data: Partial<typeof flashcards.$inferInsert>) {
         const result = await db
             .insert(flashcards)
-            .values({ title, question, answer, folderId, tags, difficulty, lastReviewed, reviewCount })
+            .values(data)
             .returning();
 
         return result.length ? result[0] : null;
     }
 
-    async update(
-        id: number,
-        updatedData: Partial<Omit<typeof flashcards.$inferInsert, "id">>
-    ) {
+    async update(data: Partial<typeof flashcards.$inferInsert>) {
+        if (!data.id) return null;
         const result = await db
             .update(flashcards)
-            .set(updatedData)
-            .where(eq(flashcards.id, id))
+            .set(data)
+            .where(eq(flashcards.id, data.id))
             .returning();
 
         return result.length ? result[0] : null;
     }
 
-    async delete(id: number) {
+    async delete(data: Partial<typeof flashcards.$inferInsert>) {
+        if (!data.id) return null;
         const result = await db
             .update(flashcards)
             .set({ deletedAt: new Date() })
-            .where(eq(flashcards.id, id))
+            .where(eq(flashcards.id, data.id))
             .returning();
 
         return result.length ? result[0] : null;

@@ -11,11 +11,11 @@ async function bootstrap() {
             process.exit(1);
         }
 
-        const migrationsApplied = await migrateDB();
-        if (!migrationsApplied) {
-            console.error("❌ Migrations failed. Exiting...");
-            process.exit(1);
-        }
+        // const migrationsApplied = await migrateDB();
+        // if (!migrationsApplied) {
+        //     console.error("❌ Migrations failed. Exiting...");
+        //     process.exit(1);
+        // }
 
         startServer();
     } catch (error) {

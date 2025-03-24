@@ -24,6 +24,7 @@ Você receberá um **texto de entrada**. Esse texto pode ser sobre qualquer áre
 
 Cada flashcard deve conter os seguintes **campos obrigatórios**:
 
+flashcards
 | Campo           | Tipo           | Descrição |
 |----------------|---------------|-----------|
 | `title`       | string        | Um título curto e direto sobre o tema principal do flashcard. |
@@ -34,11 +35,22 @@ Cada flashcard deve conter os seguintes **campos obrigatórios**:
 |----------------|---------------|-----------|
 ---
 
+topic
+| Campo           | Tipo           | Descrição |
+|----------------|---------------|-----------|
+| `name`         | string        | Nome do tópico. |
+| `description`  | string        | Descrição do tópico |
+|----------------|---------------|-----------|
+
 ## 📌 Passo 3: Formato de Resposta
 A saída deve ser um JSON válido sem qualquer formatação adicional. Não inclua marcações como json,  ou qualquer outra formatação de código. A resposta deve conter apenas o JSON puro, sem prefixos ou textos explicativos.
 
 {
     "valid": true,
+    "topic": {
+        "name": "Nome do tópico dos assuntos dos flashcards",
+        "description": "Descrição breve do tópico",
+    }
     "flashcards": [
         {
             "title": "Teorema de Pitágoras",
@@ -62,6 +74,7 @@ A saída deve ser um JSON válido sem qualquer formatação adicional. Não incl
 ## 🔥 Regras Importantes:
 ✅ **Retorne exatamente no formato JSON conforme especificado. Sem pontuações indicando que aquilo é um json como por exemplo o: ```json. Não quero esse tipo de marcação na resposta**  
 ✅ **O array de `flashcards` deve sempre conter 10 itens.**  
+✅ **O array de `tags` pode conter no máximo 3 items, seja objetivo na escolha deles.**  
 ✅ **As perguntas devem ser desafiadoras, mas acessíveis ao nível de conhecimento geral do usuário.**  
 ✅ **O conteúdo dos flashcards deve ser extraído e resumido de forma coerente com o texto fornecido.**  
 

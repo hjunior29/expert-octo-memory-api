@@ -15,13 +15,13 @@ export async function checkDB() {
     }
 }
 
-export async function migrateDB() {
-    try {
-        await migrate(db, { migrationsFolder: "./drizzle" });
-        console.log("✅ Database migration successful");
-        return true;
-    } catch (error) {
-        console.error("❌ Database migration failed:", error);
-        return false;
-    }
-}
+// export async function migrateDB() {
+//     try {
+//         await migrate(db, { migrationsFolder: "./drizzle" });
+//         console.log("✅ Database migration successful");
+//         return true;
+//     } catch (error) {
+//         console.error("❌ Database migration failed:", error);
+//         return false;
+//     }
+// }

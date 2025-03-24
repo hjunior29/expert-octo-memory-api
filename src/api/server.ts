@@ -1,5 +1,6 @@
 import { flashcardRoutes } from "$modules/flashcards/flashcard.routes";
 import { folderRoutes } from "$modules/folders/folder.routes";
+import { topicRoutes } from "$modules/topic/topic.routes";
 import { userRoutes } from "$modules/users/user.routes";
 
 export function startServer() {
@@ -8,6 +9,7 @@ export function startServer() {
 			...userRoutes,
 			...folderRoutes,
 			...flashcardRoutes,
+			...topicRoutes,
 		}),
 	});
 

@@ -1,5 +1,5 @@
 import { db } from "$core/database";
-import { folders } from "$core/database/models";
+import { folders, topics } from "$core/database/models";
 import { eq, isNull } from "drizzle-orm";
 
 export class FolderService {
@@ -7,43 +7,45 @@ export class FolderService {
         return await db.select().from(folders).where(isNull(folders.deletedAt));
     }
 
-    async findById(id: number) {
-        const result = await db.select().from(folders).where(eq(folders.id, id));
+    async findById(data: Partial<typeof folders.$inferInsert>) {
+        if (!data.id) return null;
+        const result = await db.select().from(folders).where(eq(folders.id, data.id));
         return result.length ? result[0] : null;
     }
 
-    async create(
-        name: string,
-        creatorId: number
-    ) {
+    async create(data: Partial<typeof folders.$inferInsert>) {
         const result = await db
             .insert(folders)
-            .values({ name, creatorId })
+            .values(data)
             .returning();
 
         return result.length ? result[0] : null;
     }
 
-    async update(
-        id: number,
-        updatedData: Partial<Omit<typeof folders.$inferInsert, "id">>
-    ) {
+    async update(data: Partial<typeof folders.$inferInsert>) {
+        if (!data.id) return null;
         const result = await db
             .update(folders)
-            .set(updatedData)
-            .where(eq(folders.id, id))
+            .set(data)
+            .where(eq(folders.id, data.id))
             .returning();
 
         return result.length ? result[0] : null;
     }
 
-    async delete(id: number) {
+    async delete(data: Partial<typeof folders.$inferInsert>) {
+        if (!data.id) return null;
         const result = await db
             .update(folders)
             .set({ deletedAt: new Date() })
-            .where(eq(folders.id, id))
+            .where(eq(folders.id, data.id))
             .returning();
 
         return result.length ? result[0] : null;
+    }
+
+    async getFolderTopics(data: Partial<typeof folders.$inferInsert>) {
+        if (!data.id) return null;
+        return await db.select().from(topics).where(eq(topics.folderId, data.id));
     }
 }

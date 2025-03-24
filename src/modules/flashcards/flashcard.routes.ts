@@ -13,7 +13,7 @@ export const flashcardRoutes = {
         DELETE: (req: Request) => flashcardController.deleteFlashcard(req as Request & { params: { id: string } }),
     },
     "/api/flashcards/generate/text/:folderId": {
-        POST: (req: Request) => flashcardController.generateFlashcardsFromText(req as Request & { params: { folderId: string } })
+        POST: (req: Request) => flashcardController.generateFlashcardsFromText(req as Request & { params: { folderId: number } })
     },
     "/api/flashcards/generate/link": {
         POST: (req: Request) => flashcardController.generateFlashcardsFromLink(req)

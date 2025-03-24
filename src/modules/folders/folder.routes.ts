@@ -12,4 +12,7 @@ export const folderRoutes = {
         PUT: (req: Request) => folderController.updateFolder(req as Request & { params: { id: string } }),
         DELETE: (req: Request) => folderController.deleteFolder(req as Request & { params: { id: string } }),
     },
-};
+    "/api/folders/:id/topics": {
+        GET: (req: Request) => folderController.getFolderTopics(req as Request & { params: { id: string } }),
+    },
+}
