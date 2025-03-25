@@ -13,7 +13,7 @@ export class UtilsService {
         );
     }
 
-    base64ToFile(base64: string): File {
+    base64ToFile(base64: string, fileName: string): File {
         const arr = base64.split(',');
         const mimeRegex = /:(.*?);/;
         const mimeMatch = mimeRegex.exec(arr[0]);
@@ -25,6 +25,6 @@ export class UtilsService {
             uint8Array[i] = byteString.charCodeAt(i);
         }
 
-        return new File([uint8Array], "file", { type: mime });
+        return new File([uint8Array], fileName, { type: mime });
     }
 }
