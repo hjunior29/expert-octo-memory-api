@@ -15,13 +15,13 @@ export const flashcardRoutes = {
     "/api/flashcards/generate/text/:folderId": {
         POST: (req: Request) => flashcardController.generateFlashcardsFromText(req as Request & { params: { folderId: number } })
     },
-    "/api/flashcards/generate/link": {
-        POST: (req: Request) => flashcardController.generateFlashcardsFromLink(req)
+    "/api/flashcards/generate/link/:folderId": {
+        POST: (req: Request) => flashcardController.generateFlashcardsFromLink(req as Request & { params: { folderId: number } })
     },
-    "/api/flashcards/generate/topic": {
-        POST: (req: Request) => flashcardController.generateFlashcardsFromTopic(req)
+    "/api/flashcards/generate/topic/:folderId": {
+        POST: (req: Request) => flashcardController.generateFlashcardsFromTopic(req as Request & { params: { folderId: number } })
     },
-    "/api/flashcards/generate/file": {
-        POST: (req: Request) => flashcardController.generateFlashcardsFromFile(req)
+    "/api/flashcards/generate/file/:folderId": {
+        POST: (req: Request) => flashcardController.generateFlashcardsFromFile(req as Request & { params: { folderId: number } })
     },
 };

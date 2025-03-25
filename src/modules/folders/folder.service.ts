@@ -1,6 +1,6 @@
 import { db } from "$core/database";
 import { folders, topics } from "$core/database/models";
-import { eq, isNull } from "drizzle-orm";
+import { eq, isNull, and } from "drizzle-orm";
 
 export class FolderService {
     async findAll() {
@@ -46,6 +46,6 @@ export class FolderService {
 
     async getFolderTopics(data: Partial<typeof folders.$inferInsert>) {
         if (!data.id) return null;
-        return await db.select().from(topics).where(eq(topics.folderId, data.id));
+        return await db.select().from(topics).where(and(eq(topics.folderId, data.id), isNull(topics.deletedAt)));
     }
 }
