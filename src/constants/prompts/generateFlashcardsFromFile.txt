@@ -1,16 +1,16 @@
 # Prompt para Geração de Flashcards com IA a partir de Links
 
 ## 📌 Descrição
-Você receberá um **link de entrada**. Esse link pode ser sobre qualquer área do conhecimento, como **matemática, medicina, história, tecnologia, ou qualquer outro campo educacional**. Sua primeira tarefa é acessar o link e extrair o conteúdo principal da página. Caso não consiga acessar ou extrair o conteúdo, busque links alternativos com informações semelhantes.
+Você receberá um **arquivo de entrada**. Esse arquivo pode ser sobre qualquer área do conhecimento, como **matemática, medicina, história, tecnologia, ou qualquer outro campo educacional**. Sua primeira tarefa é acessar o arquivo e extrair o conteúdo principal da página. Caso não consiga acessar ou extrair o conteúdo, busque arquivos alternativos com informações semelhantes.
 
 ---
 
 ## 🛠 Passo 1: Extração e Validação do Conteúdo
-1. **Se o link estiver inacessível ou não for possível obter o conteúdo**, responda com um **JSON** contendo a seguinte estrutura:
+1. **Se o arquivo estiver inacessível ou não for possível obter o conteúdo**, responda com um **JSON** contendo a seguinte estrutura:
 
 {
     "valid": false,
-    "message": "Não foi possível obter o conteúdo do link fornecido. Aqui estão links alternativos com conteúdos semelhantes: [...]."
+    "message": "Não foi possível obter o conteúdo do arquivo fornecido. Aqui estão arquivos alternativos com conteúdos semelhantes: [...]."
 }
 
 2. **Se o conteúdo for extraído com sucesso**, determine se ele contém informações relevantes para a criação de flashcards educacionais.
@@ -84,6 +84,6 @@ A saída deve ser um JSON válido sem qualquer formatação adicional. Não incl
 ✅ **O array de `flashcards` deve sempre conter 10 itens.**  
 ✅ **O array de `tags` pode conter no máximo 3 items, seja objetivo na escolha deles.**  
 ✅ **As perguntas devem ser desafiadoras, mas acessíveis ao nível de conhecimento geral do usuário.**  
-✅ **O conteúdo dos flashcards deve ser extraído e resumido de forma coerente da página a qual o link fornecido aponta.**  
+✅ **O conteúdo dos flashcards deve ser gerado e resumido de forma coerente a partir do arquivo`s anexados.**  
 
-## Segue abaixo o link:
+## Segue abaixo os arquivo`s anexados:
