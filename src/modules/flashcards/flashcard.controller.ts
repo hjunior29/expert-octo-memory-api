@@ -113,7 +113,7 @@ export class FlashcardController {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
         }
 
-        return this.createFlashcardsBatch(generateFlashcard.flashcards, folderId);
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id);
     };
 
     generateFlashcardsFromLink = async (req: Request & { params: { folderId: number } }) => {
@@ -135,7 +135,7 @@ export class FlashcardController {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
         }
 
-        return this.createFlashcardsBatch(generateFlashcard.flashcards, folderId);
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id);
     };
 
     generateFlashcardsFromTopic = async (req: Request & { params: { folderId: number } }) => {
@@ -147,8 +147,9 @@ export class FlashcardController {
         }
 
         const generateFlashcard = await this.geminiService.generateFlashcardsFromTopic(flashcardGenerate);
-        console.log(generateFlashcard);
         const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId });
+
+        console.log(topic);
 
         if (!topic?.id) {
             return this.utilsService.createResponse(400, "Erro ao criar tópico");
@@ -158,7 +159,7 @@ export class FlashcardController {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
         }
 
-        return this.createFlashcardsBatch(generateFlashcard.flashcards, folderId);
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id);
     };
 
     generateFlashcardsFromFile = async (req: Request & { params: { folderId: number } }) => {
@@ -180,6 +181,6 @@ export class FlashcardController {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
         }
 
-        return this.createFlashcardsBatch(generateFlashcard.flashcards, folderId);
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id);
     }
 }

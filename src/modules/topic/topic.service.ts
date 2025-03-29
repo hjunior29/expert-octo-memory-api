@@ -1,6 +1,6 @@
 import { db } from "$core/database";
 import { flashcards, topics } from "$core/database/models";
-import { eq, isNull } from "drizzle-orm";
+import { eq, isNull, and } from "drizzle-orm";
 
 export class TopicService {
     async findAll() {
@@ -46,6 +46,7 @@ export class TopicService {
 
     async getTopicFlashcards(data: Partial<typeof topics.$inferInsert>) {
         if (!data.id) return null;
-        return await db.select().from(flashcards).where(eq(flashcards.topicId, data.id));
+
+        return await db.select().from(flashcards).where(and(eq(flashcards.topicId, data.id), isNull(flashcards.deletedAt)));
     }
 }
