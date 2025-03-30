@@ -12,7 +12,7 @@ export class GeminiService {
 
     async generateFlashcardsFromLink(flashcard: FlashcardGenerate) {
         const prompt = await prompts.generateFlashcardsFromLink + flashcard.link;
-        return await this.client.generateFlashcard(prompt);
+        return await this.client.generateFlashcard(prompt, [], flashcard.link);
     }
 
     async generateFlashcardsFromTopic(flashcard: FlashcardGenerate) {
