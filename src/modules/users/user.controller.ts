@@ -21,7 +21,7 @@ export class UserController {
 			return this.utilsService.createResponse(400, "Erro no corpo da requisição");
 		}
 
-		const user = await this.userService.findById(id);
+		const user = await this.userService.findById({ id });
 		return user
 			? this.utilsService.createResponse(201, "Usuário encontrado", user)
 			: this.utilsService.createResponse(404, "Usuário não encontrado");
@@ -34,29 +34,28 @@ export class UserController {
 			!data?.firstName ||
 			!data?.lastName ||
 			!data?.email ||
-			!data?.phoneNumber ||
 			!data?.password
 		) {
 			return this.utilsService.createResponse(400, "Erro no corpo da requisição");
 		}
 
-		const hashedPassword = await this.passwordService.hashPassword(data.password);
-		const user = await this.userService.create(
-			data.firstName,
-			data.lastName,
-			data.email,
-			data.phoneNumber,
-			hashedPassword
-		);
+		data.hashPassword = await this.passwordService.hashPassword(data.password);
 
-		return this.utilsService.createResponse(201, "Usuário criado", user);
+		const user = await this.userService.create(data);
+		return user
+			? this.utilsService.createResponse(201, "Usuário criado", user)
+			: this.utilsService.createResponse(400, "Erro ao criar usuário");
 	};
 
 	updateUser = async (req: Request & { params: { id: string } }) => {
 		const id = Number(req.params.id);
 
+		if (!id) {
+			return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+		}
+
 		const updatedData = await req.json();
-		const updatedUser = await this.userService.update(id, updatedData);
+		const updatedUser = await this.userService.update({ id, ...updatedData });
 		return updatedUser
 			? this.utilsService.createResponse(201, "Usuário atualizado", updatedUser)
 			: this.utilsService.createResponse(404, "Usuário não encontrado");
@@ -65,7 +64,11 @@ export class UserController {
 	deleteUser = async (req: Request & { params: { id: string } }) => {
 		const id = Number(req.params.id);
 
-		const deleted = await this.userService.delete(id);
+		if (!id) {
+			return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+		}
+
+		const deleted = await this.userService.delete({ id });
 		return deleted
 			? this.utilsService.createResponse(200, "Usuário deletado")
 			: this.utilsService.createResponse(404, "Usuário não encontrado");
