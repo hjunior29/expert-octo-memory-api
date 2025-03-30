@@ -34,3 +34,13 @@ export const PUBLIC_KEY = await (async () => {
     const key = rawKey.replace(/\\n/g, "\n");
     return importSPKI(key, "RS256");
 })();
+
+export const AUTH_BYPASS = (() => {
+    if (Bun.env.AUTH_BYPASS === "true") {
+        return true;
+    }
+    if (Bun.env.AUTH_BYPASS === "false") {
+        return false;
+    }
+    throw new Error("AUTH_BYPASS environment variable must be either 'true' or 'false'");
+})();
