@@ -1,3 +1,4 @@
+import { authRoutes } from "$modules/auth/auth.routes";
 import { flashcardRoutes } from "$modules/flashcards/flashcard.routes";
 import { folderRoutes } from "$modules/folders/folder.routes";
 import { topicRoutes } from "$modules/topic/topic.routes";
@@ -10,6 +11,7 @@ export function startServer() {
 			...folderRoutes,
 			...flashcardRoutes,
 			...topicRoutes,
+			...authRoutes,
 		}),
 	});
 

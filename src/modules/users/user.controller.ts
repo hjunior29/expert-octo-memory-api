@@ -3,9 +3,9 @@ import { UtilsService } from "$modules/utils/utils.service";
 import { UserService } from "./user.service";
 
 export class UserController {
-	private userService = new UserService();
-	private passwordService = new PasswordService();
-	private utilsService = new UtilsService();
+	private readonly userService = new UserService();
+	private readonly passwordService = new PasswordService();
+	private readonly utilsService = new UtilsService();
 
 	getAllUsers = async () => {
 		const users = await this.userService.findAll();
