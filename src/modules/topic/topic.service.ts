@@ -3,13 +3,35 @@ import { flashcards, topics } from "$core/database/models";
 import { eq, isNull, and } from "drizzle-orm";
 
 export class TopicService {
-    async findAll() {
-        return await db.select().from(topics).where(isNull(topics.deletedAt));
+    async findAll(data: Partial<typeof topics.$inferInsert>) {
+        if (!data.creatorId) return null;
+
+        const result = await db
+            .select()
+            .from(topics)
+            .where(
+                and(
+                    eq(topics.creatorId, data.creatorId),
+                    isNull(topics.deletedAt)
+                )
+            );
+        return result.length ? result : null;
+
     }
 
     async findById(data: Partial<typeof topics.$inferInsert>) {
-        if (!data.id) return null;
-        const result = await db.select().from(topics).where(eq(topics.id, data.id));
+        if (!data.id || !data.creatorId) return null;
+
+        const result = await db
+            .select()
+            .from(topics)
+            .where(
+                and(
+                    eq(topics.id, data.id),
+                    eq(topics.creatorId, data.creatorId),
+                    isNull(topics.deletedAt)
+                )
+            );
         return result.length ? result[0] : null;
     }
 
@@ -24,6 +46,7 @@ export class TopicService {
 
     async update(data: Partial<typeof topics.$inferInsert>) {
         if (!data.id) return null;
+
         const result = await db
             .update(topics)
             .set(data)
@@ -35,6 +58,7 @@ export class TopicService {
 
     async delete(data: Partial<typeof topics.$inferInsert>) {
         if (!data.id) return null;
+
         const result = await db
             .update(topics)
             .set({ deletedAt: new Date() })
@@ -45,8 +69,18 @@ export class TopicService {
     }
 
     async getTopicFlashcards(data: Partial<typeof topics.$inferInsert>) {
-        if (!data.id) return null;
+        if (!data.id || !data.creatorId) return null;
 
-        return await db.select().from(flashcards).where(and(eq(flashcards.topicId, data.id), isNull(flashcards.deletedAt)));
+        const result = await db
+            .select()
+            .from(flashcards)
+            .where(
+                and(
+                    eq(flashcards.topicId, data.id),
+                    eq(flashcards.creatorId, data.creatorId),
+                    isNull(flashcards.deletedAt)
+                )
+            );
+        return result.length ? result : null;
     }
 }

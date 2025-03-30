@@ -5,8 +5,10 @@ import { flashcardRoutes } from "$modules/flashcards/flashcard.routes";
 import { folderRoutes } from "$modules/folders/folder.routes";
 import { topicRoutes } from "$modules/topic/topic.routes";
 import { userRoutes } from "$modules/users/user.routes";
+import { UtilsService } from "$modules/utils/utils.service";
 
 const authController = new AuthController();
+const utilsService = new UtilsService();
 
 export function startServer() {
 	const server = Bun.serve({
@@ -48,11 +50,19 @@ function applyMiddleware(routes: Record<string, Record<string, (req: Request) =>
 				];
 
 				if (!publicRoutes.includes(pathname) || AUTH_BYPASS) {
-					const response = await authController.verify(req);
+					const verifyResponse = await authController.verify(req);
+					const response = await verifyResponse.json();
 
-					if (response instanceof Response && response.status !== 200) {
-						return response;
+					if (verifyResponse.status !== 200) {
+						return utilsService.createResponse(
+							verifyResponse.status,
+							"Token inválido ou expirado",
+						)
 					}
+
+					const reqWithUser = Object.assign(req, { user: response.data.payload });
+
+					return handler(reqWithUser);
 				}
 
 				return handler(req);

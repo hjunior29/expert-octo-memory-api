@@ -3,13 +3,11 @@ import { PasswordService } from "$core/security/password.service";
 import { UtilsService } from "$modules/utils/utils.service";
 import { jwtVerify, SignJWT } from "jose";
 import { PRIVATE_KEY, PUBLIC_KEY } from "$constants/index";
-import { UserService } from "$modules/users/user.service";
 
 export class AuthController {
     private readonly authService = new AuthService();
     private readonly passwordService = new PasswordService();
     private readonly utilsService = new UtilsService();
-    private readonly userService = new UserService();
 
     login = async (req: Request) => {
         const { email, password } = await req.json();
@@ -29,6 +27,7 @@ export class AuthController {
         }
 
         const token = await new SignJWT({
+            id: user.id,
             email: user.email,
             name: `${user.firstName} ${user.lastName}`,
         })

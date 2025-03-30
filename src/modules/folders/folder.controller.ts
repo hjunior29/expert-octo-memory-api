@@ -5,31 +5,44 @@ export class FolderController {
     private readonly utilsService = new UtilsService();
     private readonly folderService = new FolderService();
 
-    getAllFolders = async () => {
-        const folders = await this.folderService.findAll();
+    getAllFolders = async (req: Request & { user: { id: number } }) => {
+        const creatorId = req.user.id;
+
+        if (!creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        const folders = await this.folderService.findAll({ creatorId });
         return folders
             ? this.utilsService.createResponse(200, "Pastas encontradas", folders)
             : this.utilsService.createResponse(404, "Pastas não encontradas");
     }
 
-    getFolder = async (req: Request & { params: { id: string } }) => {
+    getFolder = async (req: Request & { params: { id: string }, user: { id: number } }) => {
         const id = Number(req.params.id);
+        const creatorId = req.user.id;
 
-        if (!id) {
+        if (!id || !creatorId) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
-        const folder = await this.folderService.findById({ id });
+        const folder = await this.folderService.findById({ id, creatorId });
         return folder
             ? this.utilsService.createResponse(200, "Pasta encontrada", folder)
             : this.utilsService.createResponse(404, "Pasta não encontrada");
     };
 
-    createFolder = async (req: Request) => {
+    createFolder = async (req: Request & { user: { id: number } }) => {
         const data = await req.json();
+        data.creatorId = req.user.id;
+
+        if (!data.name || !data.creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
         const folder = await this.folderService.create(data);
 
-        if (!folder?.name) {
+        if (!folder?.id) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
@@ -65,20 +78,21 @@ export class FolderController {
             : this.utilsService.createResponse(404, "Pasta não encontrada");
     };
 
-    getFolderTopics = async (req: Request & { params: { id: string } }) => {
+    getFolderTopics = async (req: Request & { params: { id: string }, user: { id: number } }) => {
         const id = Number(req.params.id);
+        const creatorId = req.user.id;
 
-        if (!id) {
+        if (!id || !creatorId) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
-        const folder = await this.folderService.findById({ id });
+        const folder = await this.folderService.findById({ id, creatorId });
 
-        if (!folder) {
+        if (!folder?.id) {
             return this.utilsService.createResponse(404, "Pasta não encontrada");
         }
 
-        const topics = await this.folderService.getFolderTopics({ id });
+        const topics = await this.folderService.getFolderTopics({ id, creatorId });
         return topics
             ? this.utilsService.createResponse(200, "Tópicos encontrados", { folder, topics })
             : this.utilsService.createResponse(404, "Tópicos não encontrados");

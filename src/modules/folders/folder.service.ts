@@ -3,13 +3,32 @@ import { folders, topics } from "$core/database/models";
 import { eq, isNull, and } from "drizzle-orm";
 
 export class FolderService {
-    async findAll() {
-        return await db.select().from(folders).where(isNull(folders.deletedAt));
+    async findAll(data: Partial<typeof folders.$inferInsert>) {
+        if (!data.creatorId) return null;
+        const result = await db
+            .select()
+            .from(folders)
+            .where(
+                and(
+                    eq(folders.creatorId, data.creatorId),
+                    isNull(folders.deletedAt)
+                )
+            );
+        return result.length ? result : null;
     }
 
     async findById(data: Partial<typeof folders.$inferInsert>) {
-        if (!data.id) return null;
-        const result = await db.select().from(folders).where(eq(folders.id, data.id));
+        if (!data.id || !data.creatorId) return null;
+        const result = await db
+            .select()
+            .from(folders)
+            .where(
+                and(
+                    eq(folders.id, data.id),
+                    eq(folders.creatorId, data.creatorId),
+                    isNull(folders.deletedAt)
+                )
+            );
         return result.length ? result[0] : null;
     }
 
@@ -45,7 +64,17 @@ export class FolderService {
     }
 
     async getFolderTopics(data: Partial<typeof folders.$inferInsert>) {
-        if (!data.id) return null;
-        return await db.select().from(topics).where(and(eq(topics.folderId, data.id), isNull(topics.deletedAt)));
+        if (!data.id || !data.creatorId) return null;
+        const result = await db
+            .select()
+            .from(topics)
+            .where(
+                and(
+                    eq(topics.folderId, data.id),
+                    eq(topics.creatorId, data.creatorId),
+                    isNull(topics.deletedAt)
+                )
+            );
+        return result.length ? result : null;
     }
 }

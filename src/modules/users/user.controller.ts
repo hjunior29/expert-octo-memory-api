@@ -17,6 +17,10 @@ export class UserController {
 	getUser = async (req: Request & { params: { id: string } }) => {
 		const id = Number(req.params.id);
 
+		if (!id) {
+			return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+		}
+
 		const user = await this.userService.findById(id);
 		return user
 			? this.utilsService.createResponse(201, "Usuário encontrado", user)
@@ -24,16 +28,27 @@ export class UserController {
 	};
 
 	createUser = async (req: Request) => {
-		const { firstName, lastName, email, phoneNumber, password } = await req.json();
+		const data = await req.json();
 
-		const hashedPassword = await this.passwordService.hashPassword(password);
+		if (
+			!data?.firstName ||
+			!data?.lastName ||
+			!data?.email ||
+			!data?.phoneNumber ||
+			!data?.password
+		) {
+			return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+		}
+
+		const hashedPassword = await this.passwordService.hashPassword(data.password);
 		const user = await this.userService.create(
-			firstName,
-			lastName,
-			email,
-			phoneNumber,
+			data.firstName,
+			data.lastName,
+			data.email,
+			data.phoneNumber,
 			hashedPassword
 		);
+
 		return this.utilsService.createResponse(201, "Usuário criado", user);
 	};
 

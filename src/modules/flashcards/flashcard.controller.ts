@@ -12,42 +12,50 @@ export class FlashcardController {
     private readonly topicsService = new TopicService();
     private readonly geminiService = new GeminiService();
 
-    getAllFlashcards = async () => {
-        const flashcards = await this.flashcardService.findAll();
+    getAllFlashcards = async (req: Request & { user: { id: number } }) => {
+        const creatorId = req.user.id;
+
+        if (!creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        const flashcards = await this.flashcardService.findAll({ creatorId });
         return flashcards
             ? this.utilsService.createResponse(200, "Flashcards encontrados", flashcards)
             : this.utilsService.createResponse(404, "Flashcards não encontrados");
     };
 
-    getFlashcard = async (req: Request & { params: { id: string } }) => {
+    getFlashcard = async (req: Request & { params: { id: string }, user: { id: number } }) => {
         const id = Number(req.params.id);
+        const creatorId = req.user.id;
 
-        if (!id) {
+        if (!id || !creatorId) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
-        const flashcard = await this.flashcardService.findById({ id });
+        const flashcard = await this.flashcardService.findById({ id, creatorId });
         return flashcard
             ? this.utilsService.createResponse(200, "Flashcard encontrado", flashcard)
             : this.utilsService.createResponse(404, "Flashcard não encontrado");
     };
 
-    createFlashcard = async (req: Request) => {
+    createFlashcard = async (req: Request & { user: { id: number } }) => {
         const data = await req.json();
-        const flashcard = await this.flashcardService.create(data);
+        data.creatorId = req.user.id;
 
-        if (!flashcard?.topicId || !flashcard?.title || !flashcard?.question || !flashcard?.answer) {
+        if (!data?.title || !data?.question || !data?.answer || !data.creatorId) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
+        const flashcard = await this.flashcardService.create(data);
         return flashcard
             ? this.utilsService.createResponse(201, "Flashcard criado", flashcard)
             : this.utilsService.createResponse(400, "Erro ao criar flashcard");
     };
 
 
-    createFlashcardsBatch = async (flashcards: Flashcard[], topicId: number) => {
-        if (!Array.isArray(flashcards) || flashcards.length === 0) {
+    createFlashcardsBatch = async (flashcards: Flashcard[], topicId: number, creatorId: number) => {
+        if (!Array.isArray(flashcards) || flashcards.length === 0 || !topicId || !creatorId) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
@@ -59,11 +67,13 @@ export class FlashcardController {
 
         const createdFlashcards = [];
         for (const f of flashcards) {
-            const flashcard = await this.flashcardService.create({ ...f, topicId });
+            const flashcard = await this.flashcardService.create({ ...f, topicId, creatorId });
             createdFlashcards.push(flashcard);
         }
 
-        return this.utilsService.createResponse(201, "Flashcards criados", createdFlashcards);
+        return createdFlashcards.length > 0
+            ? this.utilsService.createResponse(201, "Flashcards criados", createdFlashcards)
+            : this.utilsService.createResponse(400, "Erro ao criar flashcards");
     };
 
     updateFlashcard = async (req: Request & { params: { id: string } }) => {
@@ -93,94 +103,99 @@ export class FlashcardController {
             : this.utilsService.createResponse(404, "Flashcard não encontrado");
     };
 
-    generateFlashcardsFromText = async (req: Request & { params: { folderId: number } }) => {
+    generateFlashcardsFromText = async (req: Request & { params: { folderId: number }, user: { id: number } }) => {
         const folderId = Number(req.params.folderId);
+        const creatorId = req.user.id;
         const flashcardGenerate: FlashcardGenerate = await req.json();
 
-        if (!flashcardGenerate.text || !folderId) {
-            console.log(flashcardGenerate.text, folderId);
-            return this.utilsService.createResponse(400, "Faltando 'text' ou 'folderId' no corpo da requisição");
+        if (!folderId || !creatorId || !flashcardGenerate.text) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
         const generateFlashcard = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
-        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId });
-
-        if (!topic?.id) {
-            return this.utilsService.createResponse(400, "Erro ao criar tópico");
-        }
 
         if (!generateFlashcard.valid) {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
         }
 
-        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id);
-    };
-
-    generateFlashcardsFromLink = async (req: Request & { params: { folderId: number } }) => {
-        const folderId = Number(req.params.folderId);
-        const flashcardGenerate: FlashcardGenerate = await req.json();
-
-        if (!flashcardGenerate.link || !folderId) {
-            return this.utilsService.createResponse(400, "Faltando 'link' ou 'folderId' no corpo da requisição");
-        }
-
-        const generateFlashcard = await this.geminiService.generateFlashcardsFromLink(flashcardGenerate);
-        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId });
+        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId, creatorId });
 
         if (!topic?.id) {
             return this.utilsService.createResponse(400, "Erro ao criar tópico");
         }
 
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id, creatorId);
+    };
+
+    generateFlashcardsFromLink = async (req: Request & { params: { folderId: number }, user: { id: number } }) => {
+        const folderId = Number(req.params.folderId);
+        const creatorId = req.user.id;
+        const flashcardGenerate: FlashcardGenerate = await req.json();
+
+        if (!flashcardGenerate.link || !folderId || !creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        const generateFlashcard = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
+
         if (!generateFlashcard.valid) {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
         }
 
-        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id);
+        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId, creatorId });
+
+        if (!topic?.id) {
+            return this.utilsService.createResponse(400, "Erro ao criar tópico");
+        }
+
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id, creatorId);
     };
 
-    generateFlashcardsFromTopic = async (req: Request & { params: { folderId: number } }) => {
+    generateFlashcardsFromTopic = async (req: Request & { params: { folderId: number }, user: { id: number } }) => {
         const folderId = Number(req.params.folderId);
+        const creatorId = req.user.id;
         const flashcardGenerate: FlashcardGenerate = await req.json();
 
-        if (!flashcardGenerate.topic || !folderId) {
-            return this.utilsService.createResponse(400, "Faltando 'topic' ou 'folderId' no corpo da requisição");
+        if (!flashcardGenerate.topic || !folderId || !creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
         const generateFlashcard = await this.geminiService.generateFlashcardsFromTopic(flashcardGenerate);
-        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId });
-
-        console.log(topic);
-
-        if (!topic?.id) {
-            return this.utilsService.createResponse(400, "Erro ao criar tópico");
-        }
 
         if (!generateFlashcard.valid) {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
         }
 
-        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id);
+        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId, creatorId });
+
+        if (!topic?.id) {
+            return this.utilsService.createResponse(400, "Erro ao criar tópico");
+        }
+
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id, creatorId);
     };
 
-    generateFlashcardsFromFile = async (req: Request & { params: { folderId: number } }) => {
+    generateFlashcardsFromFile = async (req: Request & { params: { folderId: number }, user: { id: number } }) => {
         const folderId = Number(req.params.folderId);
+        const creatorId = req.user.id;
         const flashcardGenerate: FlashcardGenerate = await req.json();
 
-        if (flashcardGenerate.files?.length === 0 || !folderId) {
-            return this.utilsService.createResponse(400, "Faltando 'file' ou 'folderId' no corpo da requisição");
+        if (flashcardGenerate.files?.length === 0 || !folderId || !creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
         const generateFlashcard = await this.geminiService.generateFlashcardsFromFile(flashcardGenerate);
-        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId });
-
-        if (!topic?.id) {
-            return this.utilsService.createResponse(400, "Erro ao criar tópico");
-        }
 
         if (!generateFlashcard.valid) {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
         }
 
-        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id);
+        const topic = await this.topicsService.create({ name: generateFlashcard.topic.name, folderId, creatorId });
+
+        if (!topic?.id) {
+            return this.utilsService.createResponse(400, "Erro ao criar tópico");
+        }
+
+        return this.createFlashcardsBatch(generateFlashcard.flashcards, topic.id, creatorId);
     }
 }

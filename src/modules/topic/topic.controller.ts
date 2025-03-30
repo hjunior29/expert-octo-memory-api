@@ -5,31 +5,44 @@ export class TopicController {
     private readonly utilsService = new UtilsService();
     private readonly topicService = new TopicService();
 
-    getAllTopics = async () => {
-        const topics = await this.topicService.findAll();
+    getAllTopics = async (req: Request & { user: { id: number } }) => {
+        const creatorId = req.user.id;
+
+        if (!creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        const topics = await this.topicService.findAll({ creatorId });
         return topics
             ? this.utilsService.createResponse(200, "Tópicos encontrados", topics)
             : this.utilsService.createResponse(404, "Tópicos não encontrados");
     };
 
-    getTopic = async (req: Request & { params: { id: string } }) => {
+    getTopic = async (req: Request & { params: { id: string }, user: { id: number } }) => {
         const id = Number(req.params.id);
+        const creatorId = req.user.id;
 
-        if (!id) {
+        if (!id || !creatorId) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
-        const topic = await this.topicService.findById({ id });
+        const topic = await this.topicService.findById({ id, creatorId });
         return topic
             ? this.utilsService.createResponse(200, "Tópico encontrado", topic)
             : this.utilsService.createResponse(404, "Tópico não encontrado",);
     };
 
-    createTopic = async (req: Request) => {
+    createTopic = async (req: Request & { user: { id: number } }) => {
         const data = await req.json();
+        data.creatorId = req.user.id;
+
+        if (!data?.name || !data?.creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
         const topic = await this.topicService.create(data);
 
-        if (!topic?.name) {
+        if (!topic?.id) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
@@ -65,15 +78,21 @@ export class TopicController {
             : this.utilsService.createResponse(404, "Tópico não encontrado");
     };
 
-    getTopicFlashcards = async (req: Request & { params: { id: string } }) => {
+    getTopicFlashcards = async (req: Request & { params: { id: string }, user: { id: number } }) => {
         const id = Number(req.params.id);
+        const creatorId = req.user.id;
 
-        if (!id) {
+        if (!id || !creatorId) {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
-        const topic = await this.topicService.findById({ id });
-        const flashcards = await this.topicService.getTopicFlashcards({ id });
+        const topic = await this.topicService.findById({ id, creatorId });
+
+        if (!topic?.id) {
+            return this.utilsService.createResponse(404, "Tópico não encontrado");
+        }
+
+        const flashcards = await this.topicService.getTopicFlashcards({ id, creatorId });
         return flashcards
             ? this.utilsService.createResponse(200, "Flashcards encontrados", { topic, flashcards })
             : this.utilsService.createResponse(404, "Flashcards não encontr");
