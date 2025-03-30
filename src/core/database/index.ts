@@ -15,13 +15,20 @@ export async function checkDB() {
     }
 }
 
-// export async function migrateDB() {
-//     try {
-//         await migrate(db, { migrationsFolder: "./drizzle" });
-//         console.log("✅ Database migration successful");
-//         return true;
-//     } catch (error) {
-//         console.error("❌ Database migration failed:", error);
-//         return false;
-//     }
-// }
+export async function migrateDB() {
+    try {
+        await migrate(db, { migrationsFolder: "./drizzle" });
+        console.log("✅ Database migration successful");
+        return true;
+    } catch (error) {
+        const message = (error instanceof Error ? error.message.toLowerCase() : "") || "";
+
+        if (message.includes("already exists") || message.includes("relation") && message.includes("already exists")) {
+            console.warn("⚠️ Migration attempted to create existing table. Skipping...");
+            return true;
+        }
+
+        console.error("❌ Database migration failed:", error);
+        return false;
+    }
+}

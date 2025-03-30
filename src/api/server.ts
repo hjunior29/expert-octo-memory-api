@@ -12,6 +12,12 @@ const utilsService = new UtilsService();
 export function startServer() {
 	const server = Bun.serve({
 		routes: applyMiddleware({
+			"/": {
+				GET: async () =>
+					new Response(await Bun.file("src/public/home.html").text(), {
+						headers: { "Content-Type": "text/html" },
+					}),
+			},
 			// ...userRoutes,
 			...folderRoutes,
 			...flashcardRoutes,
@@ -43,6 +49,7 @@ function applyMiddleware(routes: Record<string, Record<string, (req: Request) =>
 
 				const pathname = new URL(req.url).pathname;
 				const publicRoutes = [
+					"/",
 					"/api/auth/login",
 					"/api/auth/register",
 					"/api/auth/verify",
