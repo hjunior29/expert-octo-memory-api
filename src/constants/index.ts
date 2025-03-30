@@ -46,3 +46,5 @@ export const AUTH_BYPASS = (() => {
     }
     throw new Error("AUTH_BYPASS environment variable must be either 'true' or 'false'");
 })();
+
+export const ORIGIN_URL = Bun.env.ORIGIN_URL
