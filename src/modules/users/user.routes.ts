@@ -5,7 +5,6 @@ const userController = new UserController();
 export const userRoutes = {
 	"/api/users": {
 		GET: (req: Request) => userController.getAllUsers(),
-		POST: (req: Request) => userController.createUser(req)
 	},
 	"/api/users/:id": {
 		GET: (req: Request) => userController.getUser(req as Request & { params: { id: string } }),
