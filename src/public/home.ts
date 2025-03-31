@@ -1,4 +1,4 @@
-export const homeRoute = {
+export const home = {
     "/": {
         GET: async () =>
             new Response(await Bun.file("src/public/home.html").text(), {
