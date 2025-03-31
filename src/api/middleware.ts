@@ -25,7 +25,7 @@ export function applyMiddleware(routes: Record<string, Record<string, (req: Requ
                 let body = null;
 
                 if (reqMethod === "OPTIONS") {
-                    utilsService.createResponse(204, "No Content", null);
+                    return utilsService.createResponse(204, "No Content", null);
                 }
 
                 if (reqMethod !== "GET" && reqMethod !== "HEAD") {
@@ -34,7 +34,7 @@ export function applyMiddleware(routes: Record<string, Record<string, (req: Requ
 
                 console.log(`[${reqMethod}] ${url}`, body || "", req.headers.get("authorization") ? "Auth" : "[No Auth]");
 
-                if (!publicRoutes.includes(pathname) || AUTH_BYPASS) {
+                if (!publicRoutes.includes(pathname) && !AUTH_BYPASS) {
                     const verifyResponse = await authController.verify(req);
                     const response = await verifyResponse.json();
 
