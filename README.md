@@ -12,7 +12,6 @@ A estrutura foi pensada para escalabilidade, separação de responsabilidades e 
 ```
 expert-octo-memory-api/
 ├── .github/workflows/          # Configurações de CI/CD com GitHub Actions
-├── .vscode/                    # Configurações específicas do VSCode (snippets, extensions)
 ├── drizzle/                    # Migrations e configurações do ORM Drizzle
 ├── src/                        # Código-fonte principal da aplicação
 │   ├── api/                    # Definições de rotas (handlers HTTP)
