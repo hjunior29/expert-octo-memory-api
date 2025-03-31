@@ -1,3 +1,5 @@
+import { ORIGIN_URL } from "$constants/index";
+
 export class UtilsService {
     createResponse(status: number, message?: string, data?: unknown) {
         return new Response(
@@ -7,7 +9,12 @@ export class UtilsService {
                 ...(data !== undefined && { data })
             }),
             {
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": ORIGIN_URL ?? "*",
+                    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Headers": "Content-Type, Authorization"
+                },
                 status,
             }
         );
