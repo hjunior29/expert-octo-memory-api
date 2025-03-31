@@ -24,6 +24,10 @@ export function applyMiddleware(routes: Record<string, Record<string, (req: Requ
                 const { method: reqMethod, url } = req;
                 let body = null;
 
+                if (reqMethod === "OPTIONS") {
+                    utilsService.createResponse(204, "No Content", null);
+                }
+
                 if (reqMethod !== "GET" && reqMethod !== "HEAD") {
                     body = await req.clone().json().catch(() => null);
                 }
