@@ -10,8 +10,8 @@ import { ping } from "./ping";
 export function startServer() {
 	const server = Bun.serve({
 		routes: applyMiddleware({
-			...cors,
 			...ping,
+			...cors,
 			...home,
 			// ...userRoutes,
 			...folderRoutes,

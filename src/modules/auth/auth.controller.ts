@@ -33,7 +33,7 @@ export class AuthController {
         })
             .setProtectedHeader({ alg: "RS256" })
             .setIssuedAt()
-            .setExpirationTime("10m")
+            .setExpirationTime("1d")
             .sign(PRIVATE_KEY);
         return this.utilsService.createResponse(200, "Login bem-sucedido", { token });
     };

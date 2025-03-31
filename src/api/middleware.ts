@@ -16,7 +16,7 @@ export function applyMiddleware(routes: Record<string, Record<string, (req: Requ
                 const pathname = new URL(req.url).pathname;
                 const publicRoutes = [
                     "/",
-                    "/ping",
+                    "/api/ping",
                     "/api/auth/login",
                     "/api/auth/register",
                     "/api/auth/verify",
