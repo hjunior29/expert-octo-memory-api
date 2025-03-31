@@ -2,7 +2,9 @@
 
 Bem-vindo ao repositório **Expert Octo Memory API**! Este projeto é o backend da aplicação de flashcards com suporte a Inteligência Artificial. Foi desenvolvido com 💨 **Bun**, ⚙️ **TypeScript**, 📦 **PostgreSQL**, ⚡️ **Drizzle** e integra com a API Gemini da Google para fornecer recursos inteligentes como geração de flashcards.
 
-c
+O Projeto pode ser acessada via o link(caso ainda esteja em produção): [API](https://expert-octo-memory-api.fly.dev/)
+
+
 ---
 
 ## 🏗️ Arquitetura do Projeto
