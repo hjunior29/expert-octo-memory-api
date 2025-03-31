@@ -34,20 +34,32 @@ export function applyMiddleware(routes: Record<string, Record<string, (req: Requ
                     const response = await verifyResponse.json();
 
                     if (verifyResponse.status !== 200) {
-                        return utilsService.createResponse(
+                        const errorResponse = utilsService.createResponse(
                             verifyResponse.status,
-                            "Token inválido ou expirado",
-                        )
+                            "Token inválido ou expirado"
+                        );
+
+                        verifyResponse.headers.forEach((value, key) => {
+                            errorResponse.headers.set(key, value);
+                        });
+
+                        return errorResponse;
                     }
 
                     const reqWithUser = Object.assign(req, { user: response.data.payload });
+                    const handlerResponse = await handler(reqWithUser);
 
-                    return handler(reqWithUser);
+                    verifyResponse.headers.forEach((value, key) => {
+                        handlerResponse.headers.set(key, value);
+                    });
+
+                    return handlerResponse;
                 }
 
                 return handler(req);
             };
         }
     }
+
     return result;
 }
