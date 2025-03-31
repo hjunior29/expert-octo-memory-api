@@ -11,7 +11,7 @@ export const users = p.pgTable("users", {
     ...defaultModel,
     firstName: p.text(),
     lastName: p.text(),
-    email: p.text(),
+    email: p.text().unique(),
     phoneNumber: p.text(),
     hashedPassword: p.text(),
 });

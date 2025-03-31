@@ -39,7 +39,7 @@ export class UserController {
 			return this.utilsService.createResponse(400, "Erro no corpo da requisição");
 		}
 
-		data.hashPassword = await this.passwordService.hashPassword(data.password);
+		data.hashedPassword = await this.passwordService.hashPassword(data.password);
 
 		const user = await this.userService.create(data);
 		return user
