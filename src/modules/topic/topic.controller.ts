@@ -95,6 +95,48 @@ export class TopicController {
         const flashcards = await this.topicService.getTopicFlashcards({ id, creatorId });
         return flashcards
             ? this.utilsService.createResponse(200, "Flashcards encontrados", { topic, flashcards })
-            : this.utilsService.createResponse(404, "Flashcards não encontr");
+            : this.utilsService.createResponse(404, "Flashcards não encontrados");
+    }
+
+    shareTopic = async (req: Request & { params: { id: string }, user: { id: number } }) => {
+        const id = Number(req.params.id);
+        const creatorId = req.user.id;
+
+        if (!id || !creatorId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        const topic = await this.topicService.findById({ id, creatorId });
+
+        if (!topic?.id) {
+            return this.utilsService.createResponse(404, "Tópico não encontrado");
+        }
+
+        const sharedData = {
+            sharedId: this.utilsService.generateRandomString(20)
+        }
+
+        const updatedTopic = await this.topicService.update({ id, ...sharedData });
+        return updatedTopic
+            ? this.utilsService.createResponse(200, "Flashcards compartilhados", updatedTopic)
+            : this.utilsService.createResponse(404, "Flashcards não encontrados");
+    }
+
+    getSharedTopic = async (req: Request & { params: { id: string, sharedId: string } }) => {
+        const sharedId = req.params.sharedId;
+
+        if (!sharedId) {
+            return this.utilsService.createResponse(400, "Erro no corpo da requisição");
+        }
+
+        const topic = await this.topicService.getTopicBySharedId({ sharedId });
+        if (!topic?.id) {
+            return this.utilsService.createResponse(404, "Tópico não encontrado");
+        }
+
+        const flashcards = await this.topicService.getTopicFlashcards({ id: topic.id, creatorId: topic.creatorId });
+        return flashcards
+            ? this.utilsService.createResponse(200, "Flashcards encontrados", { topic, flashcards })
+            : this.utilsService.createResponse(404, "Flashcards não encontrados");
     }
 }

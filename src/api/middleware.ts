@@ -21,6 +21,10 @@ export function applyMiddleware(routes: Record<string, Record<string, (req: Requ
                     "/api/auth/register",
                     "/api/auth/verify",
                 ];
+                const isPublicRoute =
+                    publicRoutes.includes(pathname) ||
+                    pathname.startsWith("/api/topics/shared/")
+
                 const { method: reqMethod, url } = req;
                 let body = null;
 
@@ -34,7 +38,7 @@ export function applyMiddleware(routes: Record<string, Record<string, (req: Requ
 
                 console.log(`[${reqMethod}] ${url}`, body || "", req.headers.get("authorization") ? "Auth" : "[No Auth]");
 
-                if (!publicRoutes.includes(pathname) && !AUTH_BYPASS) {
+                if (!isPublicRoute && !AUTH_BYPASS) {
                     const verifyResponse = await authController.verify(req);
                     const response = await verifyResponse.json();
 
