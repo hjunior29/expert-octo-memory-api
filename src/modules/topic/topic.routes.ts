@@ -15,4 +15,10 @@ export const topicRoutes = {
     "/api/topics/:id/flashcards": {
         GET: (req: Request) => topicController.getTopicFlashcards(req as Request & { params: { id: string }, user: { id: number } }),
     },
+    "/api/topics/:id/flashcards/share": {
+        GET: (req: Request) => topicController.shareTopic(req as Request & { params: { id: string }, user: { id: number } }),
+    },
+    "/api/topics/flashcards/:sharedId": {
+        GET: (req: Request) => topicController.getSharedTopic(req as Request & { params: { id: string, sharedId: string } }),
+    }
 };

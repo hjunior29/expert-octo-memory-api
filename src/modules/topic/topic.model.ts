@@ -6,6 +6,7 @@ export class Topic {
         public deletedAt: Date,
         public folderId: string,
         public name: string,
-        public description?: string
+        public description?: string,
+        public sharedId?: string,
     ) { }
 }

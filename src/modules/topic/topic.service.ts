@@ -83,4 +83,19 @@ export class TopicService {
             );
         return result.length ? result : null;
     }
+
+    async getTopicBySharedId(data: Partial<typeof topics.$inferInsert>) {
+        if (!data.sharedId) return null;
+
+        const result = await db
+            .select()
+            .from(topics)
+            .where(
+                and(
+                    eq(topics.sharedId, data.sharedId),
+                    isNull(topics.deletedAt)
+                )
+            );
+        return result.length ? result[0] : null;
+    }
 }
