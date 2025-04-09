@@ -74,7 +74,7 @@ export class FolderController {
 
         const deletedFolder = await this.folderService.delete({ id });
         return deletedFolder
-            ? this.utilsService.createResponse(200, "Pasta deletada", deletedFolder)
+            ? this.utilsService.createResponse(200, "Pasta deletada")
             : this.utilsService.createResponse(404, "Pasta não encontrada");
     };
 

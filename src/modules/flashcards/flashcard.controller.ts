@@ -136,7 +136,7 @@ export class FlashcardController {
             return this.utilsService.createResponse(400, "Erro no corpo da requisição");
         }
 
-        const generateFlashcard = await this.geminiService.generateFlashcardsFromText(flashcardGenerate);
+        const generateFlashcard = await this.geminiService.generateFlashcardsFromLink(flashcardGenerate);
 
         if (!generateFlashcard.valid) {
             return this.utilsService.createResponse(400, "Erro ao gerar flashcards");
