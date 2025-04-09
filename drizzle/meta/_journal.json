@@ -36,6 +36,20 @@
       "when": 1743391770241,
       "tag": "0004_round_puck",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1743983779372,
+      "tag": "0005_safe_meteorite",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1743985314036,
+      "tag": "0006_clean_kylun",
+      "breakpoints": true
     }
   ]
 }
