@@ -28,6 +28,7 @@ export const topics = p.pgTable("topics", {
     creatorId: p.integer().references(() => users.id),
     name: p.text(),
     description: p.text(),
+    sharedId: p.text().unique(),
 });
 
 export const flashcards = p.pgTable("flashcards", {
