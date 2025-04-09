@@ -98,7 +98,6 @@ GEMINI_API_KEY=sua_chave_api_gemini
 PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nSUACHAVEAQUI\n-----END PRIVATE KEY-----\n
 PUBLIC_KEY=-----BEGIN PUBLIC KEY-----\nSUACHAVEAQUI\n-----END PUBLIC KEY-----\n
 
-AUTH_BYPASS=false
 ORIGIN_URL=http://localhost:5173
 ```
 
@@ -182,7 +181,6 @@ Configure sua chave da Gemini em `GEMINI_API_KEY` no `.env`.
 Autenticação baseada em JWT com criptografia RSA:
 
 - As chaves são carregadas do `.env`
-- Você pode ativar o bypass para testes locais com `AUTH_BYPASS=true`
 
 ---
 

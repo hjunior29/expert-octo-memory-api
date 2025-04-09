@@ -1,4 +1,3 @@
-import { AUTH_BYPASS } from "$constants/index";
 import { AuthController } from "$modules/auth/auth.controller";
 import { UtilsService } from "$modules/utils/utils.service";
 
@@ -36,9 +35,9 @@ export function applyMiddleware(routes: Record<string, Record<string, (req: Requ
                     body = await req.clone().json().catch(() => null);
                 }
 
-                console.log(`[${reqMethod}] ${url}`, body || "", req.headers.get("authorization") ? "Auth" : "[No Auth]");
+                console.log(`[${reqMethod}] ${url}`, body || "", req.headers.get("authorization") ? "[Auth]" : "[No Auth]");
 
-                if (!isPublicRoute && !AUTH_BYPASS) {
+                if (!isPublicRoute) {
                     const verifyResponse = await authController.verify(req);
                     const response = await verifyResponse.json();
 
