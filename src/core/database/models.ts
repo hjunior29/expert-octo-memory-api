@@ -1,13 +1,14 @@
-import * as p from "drizzle-orm/pg-core"
+import { sql } from "drizzle-orm";
+import * as p from "drizzle-orm/sqlite-core";
 
 const defaultModel = {
-    id: p.serial().primaryKey(),
-    createdAt: p.timestamp().defaultNow().notNull(),
-    updatedAt: p.timestamp().defaultNow().$onUpdate(() => new Date()).notNull(),
-    deletedAt: p.timestamp(),
-}
+    id: p.integer().primaryKey({ autoIncrement: true }),
+    createdAt: p.integer({ mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
+    updatedAt: p.integer({ mode: "timestamp" }).default(sql`(unixepoch())`).$onUpdate(() => new Date()).notNull(),
+    deletedAt: p.integer({ mode: "timestamp" }),
+};
 
-export const users = p.pgTable("users", {
+export const users = p.sqliteTable("users", {
     ...defaultModel,
     firstName: p.text(),
     lastName: p.text(),
@@ -16,13 +17,13 @@ export const users = p.pgTable("users", {
     hashedPassword: p.text(),
 });
 
-export const folders = p.pgTable("folders", {
+export const folders = p.sqliteTable("folders", {
     ...defaultModel,
     creatorId: p.integer().references(() => users.id),
     name: p.text(),
 });
 
-export const topics = p.pgTable("topics", {
+export const topics = p.sqliteTable("topics", {
     ...defaultModel,
     folderId: p.integer().references(() => folders.id),
     creatorId: p.integer().references(() => users.id),
@@ -31,15 +32,15 @@ export const topics = p.pgTable("topics", {
     sharedId: p.text().unique(),
 });
 
-export const flashcards = p.pgTable("flashcards", {
+export const flashcards = p.sqliteTable("flashcards", {
     ...defaultModel,
     topicId: p.integer().references(() => topics.id),
     creatorId: p.integer().references(() => users.id),
     title: p.text(),
     question: p.text(),
     answer: p.text(),
-    tags: p.text().array(),
+    tags: p.text({ mode: "json" }).$type<string[]>(),
     difficulty: p.text(),
-    lastReviewed: p.timestamp(),
+    lastReviewed: p.integer({ mode: "timestamp" }),
     reviewCount: p.integer(),
 });

@@ -1,1 +1,0 @@
-ALTER TABLE "topics" ADD CONSTRAINT "topics_sharedId_unique" UNIQUE("sharedId");
